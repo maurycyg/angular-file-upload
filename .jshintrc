@@ -8,6 +8,7 @@
     "maxlen": 120,
     "trailing": true,
     "curly": true,
+    "esversion": 6,
 
     "devel": true,
 

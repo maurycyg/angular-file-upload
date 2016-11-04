@@ -1,8 +1,6 @@
 'use strict';
 
-
 import CONFIG from './../config.json';
-
 
 let {
     copy,
@@ -15,16 +13,13 @@ let {
     element
     } = angular;
 
-
 export default function __identity(fileUploaderOptions, $rootScope, $http, $window, $timeout, FileLikeObject, FileItem) {
-    
-    
+
     let {
         File,
         FormData
         } = $window;
-    
-    
+
     class FileUploader {
         /**********************
          * PUBLIC
@@ -36,7 +31,7 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
          */
         constructor(options) {
             var settings = copy(fileUploaderOptions);
-            
+
             extend(this, settings, options, {
                 isUploading: false,
                 _nextIndex: 0,
@@ -48,6 +43,7 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
             this.filters.unshift({name: 'queueLimit', fn: this._queueLimitFilter});
             this.filters.unshift({name: 'folder', fn: this._folderFilter});
         }
+
         /**
          * Adds items to the queue
          * @param {File|HTMLInputElement|Object|FileList|Array<Object>} files
@@ -78,10 +74,9 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
                 this._onAfterAddingAll(addedFileItems);
                 this.progress = this._getTotalProgress();
             }
-
-            this._render();
-            if (this.autoUpload) this.uploadAll();
+            this.autoUpload && this.uploadAll();
         }
+
         /**
          * Remove items from the queue. Remove last: index = -1
          * @param {FileItem|Number} value
@@ -89,7 +84,7 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
         removeFromQueue(value) {
             var index = this.getIndexOfItem(value);
             var item = this.queue[index];
-            if(item.isUploading) item.cancel();
+            item.isUploading && item.cancel();
             this.queue.splice(index, 1);
             item._destroy();
             this.progress = this._getTotalProgress();
@@ -113,10 +108,14 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
             var transport = this.isHTML5 ? '_xhrTransport' : '_iframeTransport';
 
             item._prepareToUploading();
-            if(this.isUploading) return;
+            if(this.isUploading) {
+              return;
+            }
 
             this._onBeforeUploadItem(item);
-            if (item.isCancel) return;
+            if (item.isCancel) {
+              return;
+            }
 
             item.isUploading = true;
             this.isUploading = true;
@@ -131,7 +130,9 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
             var index = this.getIndexOfItem(value);
             var item = this.queue[index];
             var prop = this.isHTML5 ? '_xhr' : '_form';
-            if (!item) return;
+            if (!item) {
+              return;
+            }
             item.isCancel = true;
             if(item.isUploading) {
                 // It will call this._onCancelItem() & this._onCompleteItem() asynchronously
@@ -150,7 +151,9 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
          */
         uploadAll() {
             var items = this.getNotUploadedItems().filter(item => !item.isUploading);
-            if(!items.length) return;
+            if(!items.length) {
+              return;
+            }
 
             forEach(items, item => item._prepareToUploading());
             items[0].upload();
@@ -312,7 +315,9 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
          * @private
          */
         _getTotalProgress(value) {
-            if(this.removeAfterUpload) return value || 0;
+            if(this.removeAfterUpload) {
+              return value || 0;
+            }
 
             var notUploaded = this.getNotUploadedItems().length;
             var uploaded = notUploaded ? this.queue.length - notUploaded : this.queue.length;
@@ -328,18 +333,15 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
          * @private
          */
         _getFilters(filters) {
-            if(!filters) return this.filters;
-            if(isArray(filters)) return filters;
+            if(!filters) {
+              return this.filters;
+            }
+            if(isArray(filters)) {
+              return filters;
+            }
             var names = filters.match(/[^\s,]+/g);
             return this.filters
                 .filter(filter => names.indexOf(filter.name) !== -1);
-        }
-        /**
-         * Updates html
-         * @private
-         */
-        _render() {
-            if(!$rootScope.$$phase) $rootScope.$apply();
         }
         /**
          * Returns "true" if item is a file (not folder)
@@ -406,7 +408,9 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
         _parseHeaders(headers) {
             var parsed = {}, key, val, i;
 
-            if(!headers) return parsed;
+            if(!headers) {
+              return parsed;
+            }
 
             forEach(headers.split('\n'), (line) => {
                 i = line.indexOf(':');
@@ -509,7 +513,9 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
             var iframe = element('<iframe name="iframeTransport' + Date.now() + '">');
             var input = item._input;
 
-            if(item._form) item._form.replaceWith(input); // remove old form
+            if(item._form) {
+              item._form.replaceWith(input);
+            } // remove old form
             item._form = form; // save link to new form
 
             input.prop('name', item.alias);
@@ -745,15 +751,15 @@ export default function __identity(fileUploaderOptions, $rootScope, $http, $wind
      */
     FileUploader.isHTML5 = FileUploader.prototype.isHTML5;
 
-    
+
     return FileUploader;
 }
 
 
 __identity.$inject = [
-    'fileUploaderOptions', 
-    '$rootScope', 
-    '$http', 
+    'fileUploaderOptions',
+    '$rootScope',
+    '$http',
     '$window',
     '$timeout',
     'FileLikeObject',
